@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, url_for, redirect
+from flask import Flask, flash, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from form import UserForm
@@ -27,7 +27,7 @@ def user_list():
     return render_template('userList.html', user=user, title='RM-FORM-Excercise')
 
 
-@app.route('/', methods=['GET' , 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def user_define():
     user = User.query.all()
     form = UserForm()
@@ -37,10 +37,35 @@ def user_define():
         db.session.commit()
         flash('Submitted')
         return redirect(url_for('user_define'))
-    return render_template('index.html', title ='ORM-FORM-Excercise', form = form, user=user)
+    return render_template('index.html', title='ORM-FORM-Excercise', form=form, user=user)
+
+@app.route('/userlist/<int:user_id>/update', methods=['GET','POST'])
+def update_user(user_id):
+    users = User.query.get_or_404(user_id)
+    form = UserForm()
+    if form.validate_on_submit():
+        users.name = form.name.data
+        users.email = form.email.data
+        db.session.commit()
+        flash('User has been updated')
+        return redirect(url_for('user_list'))
+    elif request.method == 'GET':
+        form.name.data = users.name
+        form.email.data = users.email
+    return render_template('index.html', title = 'update User',
+                           form=form)
+
+
+
+
+@app.route('/userlist/<int:user_id>/delete', methods=['GET', 'POST'])
+def user_delete(user_id):
+    users = User.query.get_or_404(user_id)
+    db.session.delete(users)
+    db.session.commit()
+    flash('User has been deleted', 'success')
+    return redirect(url_for('user_list', user_id=users.id))
 
 
 if __name__ == '__main__':
     app.run()
-
-

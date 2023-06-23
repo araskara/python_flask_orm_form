@@ -20,11 +20,16 @@
         <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>Update</th>
+            <th>Delete</th>
         </tr>
         {% for user in user %}
         <tr>
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
+            <td><button onclick=location.href="{{ url_for('update_user', user_id=user.id) }}"> Update</button></td>
+            <td><button onclick=location.href="{{ url_for('user_delete', user_id=user.id) }}"> Delete</button></td>
+        </tr>
         </tr>
         {% endfor %}
     </table>
