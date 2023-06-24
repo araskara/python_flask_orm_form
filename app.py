@@ -2,6 +2,8 @@ from flask import Flask, flash, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from form import UserForm, UserAddress
+from flask_migrate import Migrate
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '83C551DCFC2BAB5671487DADAF8CB'
@@ -9,11 +11,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
+    date = db.Column(db.String(50))
     email = db.Column(db.String(100), unique=True)
     date_joined = db.Column(db.Date, default=datetime.utcnow)
     status = db.Column(db.String(50), default='Not registered')
@@ -33,6 +37,8 @@ class Address(db.Model):
 
     def __repr__(self):
         return f'<User:{self.name}>'
+
+
 
 
 @app.route('/userlist')
@@ -109,6 +115,8 @@ def user_status(user_id):
     user.status = request.form.get('status')  # directly get status from form data
     db.session.commit()
     return redirect(url_for('user_list'))
+
+
 
 
 if __name__ == '__main__':
