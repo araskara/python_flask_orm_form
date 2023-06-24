@@ -16,6 +16,7 @@ class User(db.Model):
     name = db.Column(db.String(50))
     email = db.Column(db.String(100), unique=True)
     date_joined = db.Column(db.Date, default=datetime.utcnow)
+    status = db.Column(db.String(50), default='Not registered')
     addresses = db.relationship('Address', backref='user')
 
     def __repr__(self):
@@ -36,13 +37,13 @@ class Address(db.Model):
 
 @app.route('/userlist')
 def user_list():
-    user = User.query.all()
-    return render_template('userList.html', user=user, title='RM-FORM-Excercise')
+    users = User.query.all()
+    return render_template('userList.html', users=users, title='RM-FORM-Excercise')
 
 
 @app.route('/', methods=['GET', 'POST'])
 def user_define():
-    user = User.query.all()
+    users = User.query.all()
     form = UserForm()
     if form.validate_on_submit():
         names = User(name=form.name.data, email=form.email.data)
@@ -50,7 +51,7 @@ def user_define():
         db.session.commit()
         flash('Submitted')
         return redirect(url_for('user_define'))
-    return render_template('index.html', title='ORM-FORM-Excercise', form=form, user=user)
+    return render_template('index.html', title='ORM-FORM-Excercise', form=form, users=users)
 
 
 @app.route('/userlist/<int:user_id>/update', methods=['GET', 'POST'])
@@ -100,6 +101,14 @@ def add_address():
         flash('Address has been created!')
         return redirect(url_for('add_address'))
     return render_template('add_address.html', title='create Address', form=form)
+
+
+@app.route('/update_status/<int:user_id>', methods=['POST'])
+def user_status(user_id):
+    user = User.query.get_or_404(user_id)
+    user.status = request.form.get('status')  # directly get status from form data
+    db.session.commit()
+    return redirect(url_for('user_list'))
 
 
 if __name__ == '__main__':

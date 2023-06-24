@@ -12,6 +12,12 @@
             padding: 5px;
             text-align: left;
         }
+        .status-form {
+            display: inline-block;
+        }
+        .status-select {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -20,16 +26,27 @@
         <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>Status</th>
             <th>Update</th>
             <th>Delete</th>
         </tr>
-        {% for user in user %}
+        {% for user in users %}
         <tr>
-            <td><a href="{{ url_for('user_page',user_id=user.id) }}">{{ user.name }}</a></td>
+            <td><a href="{{ url_for('user_page', user_id=user.id) }}">{{ user.name }}</a></td>
             <td>{{ user.email }}</td>
+            <td>
+                <form action="{{ url_for('user_status', user_id=user.id) }}" method="post" class="status-form">
+                    <select name="status" class="status-select">
+                        <option value="Registered" {% if user.status == 'Registered' %}selected{% endif %}>Registered</option>
+                        <option value="Pending" {% if user.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Not Registered" {% if user.status == 'Not Registered' %}selected{% endif %}>Not Registered</option>
+                        <option value="Left" {% if user.status == 'Left' %}selected{% endif %}>Left</option>
+                    </select>
+                    <button type="submit">Update Status</button>
+                </form>
+            </td>
             <td><button onclick=location.href="{{ url_for('update_user', user_id=user.id) }}"> Update</button></td>
             <td><button onclick=location.href="{{ url_for('user_delete', user_id=user.id) }}"> Delete</button></td>
-        </tr>
         </tr>
         {% endfor %}
     </table>

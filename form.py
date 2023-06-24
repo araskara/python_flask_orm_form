@@ -16,3 +16,8 @@ class UserAddress(FlaskForm):
     city = StringField('City', validators=[DataRequired()])
     submit = SubmitField('Add Address')
 
+'''
+class UserStatus(FlaskForm):
+    status = SelectField('Status', choices=[('Registered', 'Registered'), ('Pending', 'Pending'), ('Not Registered', 'Not Registered'), ('Left', 'Left')])
+    submit = SubmitField('Update Status')
+'''
