@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>Page for {{ user.name }}</h1>
+    <h2>Address:</h2>
+    {% for address in address %}
+        <p>{{ address.street }}, {{ address.city }}, {{ address.zip_code }}</p>
+    {% endfor %}
+</body>
+</html>

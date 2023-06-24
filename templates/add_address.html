@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>Add Address</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        {{ form.user.label }} <br>
+        {{ form.user() }} <br>
+
+        {{ form.number.label }} <br>
+        {{ form.number() }} <br>
+
+        {{ form.street.label }} <br>
+        {{ form.street() }} <br>
+
+        {{ form.zip_code.label }} <br>
+        {{ form.zip_code() }} <br>
+
+        {{ form.city.label }} <br>
+        {{ form.city() }} <br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+
+
+
+
+

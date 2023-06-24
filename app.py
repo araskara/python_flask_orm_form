@@ -1,7 +1,7 @@
 from flask import Flask, flash, render_template, url_for, redirect, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from form import UserForm
+from form import UserForm, UserAddress
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '83C551DCFC2BAB5671487DADAF8CB'
@@ -16,6 +16,19 @@ class User(db.Model):
     name = db.Column(db.String(50))
     email = db.Column(db.String(100), unique=True)
     date_joined = db.Column(db.Date, default=datetime.utcnow)
+    addresses = db.relationship('Address', backref='user')
+
+    def __repr__(self):
+        return f'<User:{self.name}>'
+
+
+class Address(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.String(50))
+    street = db.Column(db.String(100))
+    zip_code = db.Column(db.String(50))
+    city = db.Column(db.String(50))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
         return f'<User:{self.name}>'
@@ -39,7 +52,8 @@ def user_define():
         return redirect(url_for('user_define'))
     return render_template('index.html', title='ORM-FORM-Excercise', form=form, user=user)
 
-@app.route('/userlist/<int:user_id>/update', methods=['GET','POST'])
+
+@app.route('/userlist/<int:user_id>/update', methods=['GET', 'POST'])
 def update_user(user_id):
     users = User.query.get_or_404(user_id)
     form = UserForm()
@@ -52,10 +66,8 @@ def update_user(user_id):
     elif request.method == 'GET':
         form.name.data = users.name
         form.email.data = users.email
-    return render_template('index.html', title = 'update User',
+    return render_template('index.html', title='update User',
                            form=form)
-
-
 
 
 @app.route('/userlist/<int:user_id>/delete', methods=['GET', 'POST'])
@@ -65,6 +77,29 @@ def user_delete(user_id):
     db.session.commit()
     flash('User has been deleted', 'success')
     return redirect(url_for('user_list', user_id=users.id))
+
+
+@app.route('/user/<int:user_id>', methods=['GET', 'POST'])
+def user_page(user_id):
+    user = User.query.get_or_404(user_id)
+    address = Address.query.filter_by(user_id=user.id).all()
+
+    return render_template('user_page.html', user=user, address=address, title='User Page')
+
+
+@app.route('/add_address', methods=['GET', 'POST'])
+def add_address():
+    form = UserAddress()
+    form.user.choices = [(user.id, user.name) for user in User.query.all()]
+    if form.validate_on_submit():
+        address = Address(user_id=form.user.data, number=form.number.data,
+                          street=form.street.data, zip_code=form.zip_code.data,
+                          city=form.city.data)
+        db.session.add(address)
+        db.session.commit()
+        flash('Address has been created!')
+        return redirect(url_for('add_address'))
+    return render_template('add_address.html', title='create Address', form=form)
 
 
 if __name__ == '__main__':
